@@ -1,9 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import moment from 'moment';
+import { DatePicker } from 'antd';
+import 'antd/dist/antd.css';
 import './index.css';
 import InputItem from '../src/components/InputItem';
 import $ from 'jquery';
 import close from './icon_close.png';
+
 
 class InputHeader extends React.Component
 {
@@ -19,7 +23,6 @@ class InputHeader extends React.Component
 }
 
 
-
 class InputItemPanel extends React.Component
 {
     
@@ -31,7 +34,11 @@ class InputItemPanel extends React.Component
         });
 
         return (
-            <div className="input_container"> {items} </div>
+            <div className="input_container"> {items} 
+                <div className='data_item'>
+                    <DatePicker defaultValue={moment()}/>
+                </div>
+            </div>
         );
     }
 }
@@ -52,6 +59,8 @@ class InputFooter extends React.Component
                 data_type = $input_box_item.data('type'),
                 data_id = $input_box_item.attr("id"),
                 input_content = $input_box_item.val();
+            
+                
             if(input_content === '') {
                 alert('Please input all items.');
                 $input_box_item.focus();    //输错框聚焦
