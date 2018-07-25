@@ -35,7 +35,12 @@ class InputItemPanel extends React.Component
 
         return (
             <div className="input_container"> {items} 
-                <div className='data_item'>
+                <div className='item_input_container'>
+                    <div className='item_title'>Date applicable from</div>
+                    <DatePicker defaultValue={moment()}/>
+                </div>
+                <div className='item_input_container'>
+                    <div className='item_title'>Date applicable to</div>
                     <DatePicker defaultValue={moment()}/>
                 </div>
             </div>
@@ -53,23 +58,21 @@ class InputFooter extends React.Component
             $input_box = $main_box.find('input');
 
         var formData = new FormData();
+
         //格式判断
         for(var i = 0, length = $input_box.length; i < length; i++) {
             var $input_box_item = $($input_box[i]),
                 data_type = $input_box_item.data('type'),
                 data_id = $input_box_item.attr("id"),
                 input_content = $input_box_item.val();
-            
-                
-            if(input_content === '') {
-                alert('Please input all items.');
-                $input_box_item.focus();    //输错框聚焦
-                return ;
-            } else {
-                //日期正则匹配
-                var reg = /^((((19|20)\d{2})-(0?[13-9]|1[012])-(0?[1-9]|[12]\d|30))|(((19|20)\d{2})-(0?[13578]|1[02])-31)|(((19|20)\d{2})-0?2-(0?[1-9]|1\d|2[0-8]))|((((19|20)([13579][26]|[2468][048]|0[48]))|(2000))-0?2-29))$/;
-                var regExp = new RegExp(reg);
 
+
+            if(input_content === '') {
+                // alert('Please input all items.');
+                // $input_box_item.focus();    //输错框聚焦
+                // return ;
+                continue ;
+            } else {
                 if(data_type === 'integer')
                 {
                     input_content = parseFloat(input_content, 10);        //因为取到输入框为字符串，这里转换为float型，第二个参数表示转化为10进制
@@ -90,15 +93,6 @@ class InputFooter extends React.Component
                         $input_box_item.focus();        //输错框聚焦
                         return ;
                     }
-                } else if(data_type === 'date') {
-                    if(regExp.test(input_content) ) {
-                        formData.set(data_id, input_content);
-                    } else {
-                        alert('Please input the right date .');
-                        $input_box_item.val('');        //输入框置为空
-                        $input_box_item.focus();        //输错框聚焦
-                        return ;
-                    }
                 } else if(data_type === 'yes_or_blank') {
                     if(input_content === 'yes' || input_content === 'blank') {
                         formData.set(data_id, input_content);
@@ -115,30 +109,42 @@ class InputFooter extends React.Component
         //日期错误判断
         var $data_from = $($input_box[18]),
             $data_to = $($input_box[19]);
-        var data_from_value = $data_from.val().split('-'),
-            data_to_value = $data_to.val().split('-');
-        if(data_from_value[0] > data_to_value[0]) {
+        if(!$data_from && !$data_to) {
+            console.log('日期填写为空');
+        } else if(!$data_from && $data_to) {
             alert('Please input the right date!');
             $data_from.val('');
             $data_from.focus();
-            return ;
-        } else if(data_from_value[0] === data_to_value[0]) {
-            if(data_from_value[1] > data_to_value[1]) {
+        } else if($data_from && !$data_to) {
+            alert('Please input the right date!');
+            $data_to.val('');
+            $data_to.focus();
+        } else {
+            var data_from_value = $data_from.val().split('-'),
+                data_to_value = $data_to.val().split('-');
+            if(data_from_value[0] > data_to_value[0]) {
                 alert('Please input the right date!');
                 $data_from.val('');
                 $data_from.focus();
                 return ;
-            } else if(data_from_value[1] === data_to_value[1]) {
-                if(data_from_value[2] > data_to_value[2]) {
+            } else if(data_from_value[0] === data_to_value[0]) {
+                if(data_from_value[1] > data_to_value[1]) {
                     alert('Please input the right date!');
                     $data_from.val('');
                     $data_from.focus();
                     return ;
-                } else if(data_from_value[2] === data_to_value[2]) {
-                    alert('Please input the right date!');
-                    $data_from.val('');
-                    $data_from.focus();
-                    return ;
+                } else if(data_from_value[1] === data_to_value[1]) {
+                    if(data_from_value[2] > data_to_value[2]) {
+                        alert('Please input the right date!');
+                        $data_from.val('');
+                        $data_from.focus();
+                        return ;
+                    } else if(data_from_value[2] === data_to_value[2]) {
+                        alert('Please input the right date!');
+                        $data_from.val('');
+                        $data_from.focus();
+                        return ;
+                    }
                 }
             }
         }
@@ -189,8 +195,6 @@ var rawData = [
     {info: {id:'16',type:'integer',title:'Contracted Reponse', value:'', placeholder:'', notice:''}},
     {info: {id:'17',type:'integer',title:'Contracted Downtime', value:'', placeholder:'', notice:''}},
     {info: {id:'18',type:'yes_or_blank',title:'Scheduled Services Due Within Month', value:'', placeholder:'Please input: yes or blank', notice:''}},
-    {info: {id:'19',type:'date',title:'Date applicable from', value:'', placeholder:'Input format: YYYY-MM-DD', notice:''}},
-    {info: {id:'20',type:'date',title:'Date applicable to', value:'', placeholder:'Input format: YYYY-MM-DD', notice:''}},
 ];
 
 class InputBox extends React.Component 
@@ -209,6 +213,19 @@ class InputBox extends React.Component
         );
     }
 }
+
+console.log($('.item_input_container'));
+
+$('.ant-input').css({
+    "width": "400px",
+    "height": "40px",
+    "border": "1px solid rgb(212, 212, 212)",
+    "border-radius": "5px",
+    "padding-left": "10px",
+    "-webkit-box-sizing": "border-box",
+    "box-sizing": "border-box",
+    "margin-left": "20px",
+});
 
 ReactDOM.render(<InputBox />, document.getElementById('root'));
 
